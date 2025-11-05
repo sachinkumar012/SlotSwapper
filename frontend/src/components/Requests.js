@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import "./requests.css";
+import "./Requests.css";
 
 function Request() {
   const [incoming, setIncoming] = useState([]);
