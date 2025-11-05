@@ -1,18 +1,23 @@
+// File: request.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import "./requests.css";
 
-const Requests = () => {
+function Request() {
   const [incoming, setIncoming] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [responding, setResponding] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const { user } = useAuth();
 
   useEffect(() => {
     fetchRequests();
   }, []);
 
-  const fetchRequests = async () => {
+  async function fetchRequests() {
     try {
       setLoading(true);
       const [incomingRes, outgoingRes] = await Promise.all([
@@ -23,16 +28,22 @@ const Requests = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }),
       ]);
-      setIncoming(incomingRes.data);
-      setOutgoing(outgoingRes.data);
+      setIncoming(incomingRes.data || []);
+      setOutgoing(outgoingRes.data || []);
     } catch (err) {
       console.error("Error fetching requests:", err);
+      setError("Unable to load requests. Try again later.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const respond = async (requestId, accepted) => {
+  async function respond(requestId, accepted) {
+    if (responding) return;
+    setResponding(requestId);
+    setError(null);
+    setSuccess(null);
+
     try {
       await axios.post(
         `/api/swaps/swap-response/${requestId}`,
@@ -41,153 +52,167 @@ const Requests = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      fetchRequests(); // Refresh the requests
+
+      setSuccess(accepted ? "Request accepted" : "Request rejected");
+      await fetchRequests();
     } catch (err) {
-      alert(
-        "Error responding to request: " + err.response?.data?.message ||
-          err.message
-      );
+      setError(err.response?.data?.message || err.message || "Server error");
+    } finally {
+      setResponding(null);
     }
-  };
+  }
 
-  const getStatusBadge = (status) => {
-    const statusClasses = {
-      PENDING: "status-pending",
-      ACCEPTED: "status-accepted",
-      REJECTED: "status-rejected",
-    };
-    return (
-      <span className={`status-badge ${statusClasses[status] || ""}`}>
-        {status}
-      </span>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="requests-container">
-        <div className="loading">Loading requests...</div>
-      </div>
+  function getStatusBadge(status) {
+    return React.createElement(
+      "span",
+      { className: `status-badge ${status?.toLowerCase()}` },
+      status
     );
   }
 
-  return (
-    <div className="requests-container">
-      <header className="page-header">
-        <h1>Swap Requests</h1>
-        <p>Manage your incoming and outgoing swap requests</p>
-      </header>
+  if (loading) {
+    return React.createElement(
+      "div",
+      { className: "page-wrap" },
+      React.createElement(
+        "div",
+        { className: "panel centered" },
+        "Loading requests..."
+      )
+    );
+  }
 
-      <div className="requests-section">
-        <h2>Incoming Requests</h2>
-        {incoming.length === 0 ? (
-          <div className="empty-state">
-            <p>No incoming requests at the moment.</p>
-          </div>
-        ) : (
-          <div className="requests-grid">
-            {incoming.map((req) => (
-              <div key={req._id} className="request-card">
-                <div className="request-header">
-                  <h3>From: {req.requesterId.name}</h3>
-                  <span className="request-date">
-                    {new Date(req.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="request-details">
-                  <div className="slot-info">
-                    <strong>They want:</strong> {req.requestedSlotId?.title}
-                    <br />
-                    <small>
-                      {new Date(
-                        req.requestedSlotId?.startTime
-                      ).toLocaleString()}{" "}
-                      -{" "}
-                      {new Date(req.requestedSlotId?.endTime).toLocaleString()}
-                    </small>
-                  </div>
-                  <div className="slot-info">
-                    <strong>They offer:</strong> {req.offeredSlotId?.title}
-                    <br />
-                    <small>
-                      {new Date(req.offeredSlotId?.startTime).toLocaleString()}{" "}
-                      - {new Date(req.offeredSlotId?.endTime).toLocaleString()}
-                    </small>
-                  </div>
-                </div>
-                <div className="request-actions">
-                  {req.status === "PENDING" ? (
-                    <>
-                      <button
-                        className="btn-accept"
-                        onClick={() => respond(req._id, true)}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="btn-reject"
-                        onClick={() => respond(req._id, false)}
-                      >
-                        Reject
-                      </button>
-                    </>
-                  ) : (
-                    getStatusBadge(req.status)
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+  return React.createElement("div", { className: "page-wrap" }, [
+    (error || success) &&
+      React.createElement(
+        "div",
+        { className: `toast ${error ? "error" : "success"}` },
+        [
+          React.createElement(
+            "div",
+            { className: "toast-text" },
+            error || success
+          ),
+          React.createElement(
+            "button",
+            {
+              className: "toast-close",
+              onClick: () => {
+                setError(null);
+                setSuccess(null);
+              },
+            },
+            "×"
+          ),
+        ]
+      ),
+    React.createElement("div", { className: "content-grid" }, [
+      React.createElement("section", { className: "col" }, [
+        React.createElement("h2", { className: "section-title" }, "Incoming"),
+        incoming.length === 0
+          ? React.createElement("div", { className: "panel empty" }, [
+              React.createElement("div", { className: "empty-emoji" }, "📭"),
+              React.createElement(
+                "div",
+                null,
+                "No incoming requests at the moment."
+              ),
+            ])
+          : incoming.map((req) =>
+              React.createElement(
+                "article",
+                { key: req._id, className: "request-box" },
+                [
+                  React.createElement("div", { className: "box-head" }, [
+                    React.createElement(
+                      "div",
+                      { className: "who" },
+                      `From: ${req.requesterId?.name || "Unknown"}`
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "when" },
+                      new Date(req.createdAt).toLocaleDateString()
+                    ),
+                  ]),
+                  React.createElement("div", { className: "box-body" }, [
+                    React.createElement("div", { className: "slot" }, [
+                      React.createElement(
+                        "div",
+                        { className: "slot-title" },
+                        "They want"
+                      ),
+                      React.createElement(
+                        "div",
+                        { className: "slot-main" },
+                        req.requestedSlotId?.title || "—"
+                      ),
+                      React.createElement(
+                        "div",
+                        { className: "slot-time" },
+                        `${new Date(
+                          req.requestedSlotId?.startTime
+                        ).toLocaleString()} - ${new Date(
+                          req.requestedSlotId?.endTime
+                        ).toLocaleString()}`
+                      ),
+                    ]),
+                    React.createElement("div", { className: "slot" }, [
+                      React.createElement(
+                        "div",
+                        { className: "slot-title" },
+                        "They offer"
+                      ),
+                      React.createElement(
+                        "div",
+                        { className: "slot-main" },
+                        req.offeredSlotId?.title || "—"
+                      ),
+                      React.createElement(
+                        "div",
+                        { className: "slot-time" },
+                        `${new Date(
+                          req.offeredSlotId?.startTime
+                        ).toLocaleString()} - ${new Date(
+                          req.offeredSlotId?.endTime
+                        ).toLocaleString()}`
+                      ),
+                    ]),
+                  ]),
+                  React.createElement("div", { className: "box-foot" }, [
+                    req.status === "PENDING"
+                      ? React.createElement("div", { className: "actions" }, [
+                          React.createElement(
+                            "button",
+                            {
+                              className: "btn accept",
+                              onClick: () => respond(req._id, true),
+                              disabled: responding === req._id,
+                            },
+                            responding === req._id ? "Accepting..." : "Accept"
+                          ),
+                          React.createElement(
+                            "button",
+                            {
+                              className: "btn reject",
+                              onClick: () => respond(req._id, false),
+                              disabled: responding === req._id,
+                            },
+                            responding === req._id ? "Rejecting..." : "Reject"
+                          ),
+                        ])
+                      : React.createElement(
+                          "div",
+                          { className: "status-wrap" },
+                          getStatusBadge(req.status)
+                        ),
+                  ]),
+                ]
+              )
+            ),
+      ]),
+    ]),
+  ]);
+}
 
-      <div className="requests-section">
-        <h2>Outgoing Requests</h2>
-        {outgoing.length === 0 ? (
-          <div className="empty-state">
-            <p>You haven't made any swap requests yet.</p>
-          </div>
-        ) : (
-          <div className="requests-grid">
-            {outgoing.map((req) => (
-              <div key={req._id} className="request-card">
-                <div className="request-header">
-                  <h3>To: {req.requestedSlotId?.userId?.name || "Unknown"}</h3>
-                  <span className="request-date">
-                    {new Date(req.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="request-details">
-                  <div className="slot-info">
-                    <strong>You want:</strong> {req.requestedSlotId?.title}
-                    <br />
-                    <small>
-                      {new Date(
-                        req.requestedSlotId?.startTime
-                      ).toLocaleString()}{" "}
-                      -{" "}
-                      {new Date(req.requestedSlotId?.endTime).toLocaleString()}
-                    </small>
-                  </div>
-                  <div className="slot-info">
-                    <strong>You offer:</strong> {req.offeredSlotId?.title}
-                    <br />
-                    <small>
-                      {new Date(req.offeredSlotId?.startTime).toLocaleString()}{" "}
-                      - {new Date(req.offeredSlotId?.endTime).toLocaleString()}
-                    </small>
-                  </div>
-                </div>
-                <div className="request-status">
-                  {getStatusBadge(req.status)}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default Requests;
+export default Request;

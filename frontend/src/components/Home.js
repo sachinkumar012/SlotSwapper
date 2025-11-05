@@ -7,11 +7,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    if (user) {
-      navigate("/dashboard");
-    } else {
-      navigate("/auth");
-    }
+    navigate("/auth");
   };
 
   return (
@@ -25,7 +21,7 @@ const Home = () => {
             better.
           </p>
           <button className="cta-button" onClick={handleGetStarted}>
-            {user ? "Go to Dashboard" : "Get Started"}
+            Get Started
           </button>
         </div>
       </header>
@@ -138,7 +134,7 @@ const Home = () => {
             SlotSwapper.
           </p>
           <button className="cta-button secondary" onClick={handleGetStarted}>
-            Sign Up Now
+            Get Started
           </button>
         </div>
       </section>

@@ -1,10 +1,10 @@
-# TODO: Improve UI, Change Layout, and Update Colors
+# TODO for Improving Requests.css UI
 
-## Tasks
-- [ ] Update index.css: Change color scheme from purple/blue to teal/green palette
-- [ ] Update index.css: Enhance hero section with better centering and add navbar styles
-- [ ] Update index.css: Improve grid responsiveness and add subtle animations
-- [ ] Update Home.js: Add a navbar component to the hero section
-- [ ] Update Home.js: Enhance hero content centering
-- [ ] Update Dashboard.js: Minor UI tweaks for consistency with new color scheme
-- [ ] Test the changes by running the frontend application
+- [x] Update CSS variables for improved color palette (better contrast, modern gradients)
+- [x] Enhance hover and transition effects on request boxes and buttons
+- [x] Add focus states for accessibility on buttons
+- [x] Improve typography (font sizes, weights)
+- [x] Adjust spacing and layout (margins, paddings, alignments)
+- [x] Enhance responsiveness with additional media queries
+- [x] Add subtle animations like fade-in for toasts or pulse for loading states
+- [ ] Test the changes by running the frontend app
