@@ -5,6 +5,9 @@ const auth = require("../middleware/auth");
 
 const router = express.Router();
 
+// Get io instance from app
+const getIo = (req) => req.app.get("io");
+
 // Get swappable slots
 router.get("/swappable-slots", auth, async (req, res) => {
   try {
@@ -44,6 +47,13 @@ router.post("/swap-request", auth, async (req, res) => {
       { _id: { $in: [mySlotId, theirSlotId] } },
       { status: "SWAP_PENDING" }
     );
+
+    // Emit WebSocket event for new swap request
+    const io = getIo(req);
+    io.emit("swapRequestCreated", {
+      swapRequest,
+      recipientId: theirSlot.userId.toString(),
+    });
 
     res.status(201).json(swapRequest);
   } catch (err) {
@@ -98,6 +108,17 @@ router.post("/swap-response/:requestId", auth, async (req, res) => {
     }
 
     await swapRequest.save();
+
+    // Emit WebSocket event for swap response
+    const io = getIo(req);
+    io.emit("swapResponseReceived", {
+      swapRequest,
+      requesterId: swapRequest.requesterId.toString(),
+      recipientId: accepted
+        ? swapRequest.offeredSlotId.userId.toString()
+        : swapRequest.requestedSlotId.userId.toString(),
+    });
+
     res.json(swapRequest);
   } catch (err) {
     res.status(500).json({ message: err.message });

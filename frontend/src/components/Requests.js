@@ -1,6 +1,7 @@
 // File: request.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import io from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 import "./Requests.css";
 
@@ -15,7 +16,32 @@ function Request() {
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+
+    // Initialize Socket.io connection
+    const socket = io(
+      process.env.REACT_APP_BACKEND_URL || "http://localhost:5000"
+    );
+
+    // Listen for swap request creation
+    socket.on("swapRequestCreated", (data) => {
+      if (data.recipientId === user?.id) {
+        setSuccess("You have received a new swap request!");
+        fetchRequests(); // Refresh the list
+      }
+    });
+
+    // Listen for swap response
+    socket.on("swapResponseReceived", (data) => {
+      if (data.requesterId === user?.id || data.recipientId === user?.id) {
+        setSuccess("A swap request has been updated!");
+        fetchRequests(); // Refresh the list
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
   async function fetchRequests() {
     try {

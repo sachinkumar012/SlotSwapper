@@ -1,10 +1,31 @@
-# TODO for Improving Requests.css UI
+# TODO for SlotSwapper Features Implementation
 
-- [x] Update CSS variables for improved color palette (better contrast, modern gradients)
-- [x] Enhance hover and transition effects on request boxes and buttons
-- [x] Add focus states for accessibility on buttons
-- [x] Improve typography (font sizes, weights)
-- [x] Adjust spacing and layout (margins, paddings, alignments)
-- [x] Enhance responsiveness with additional media queries
-- [x] Add subtle animations like fade-in for toasts or pulse for loading states
-- [ ] Test the changes by running the frontend app
+## Unit/Integration Tests
+- [ ] Install Jest and Supertest in backend/package.json
+- [ ] Create backend/tests/swaps.test.js with unit tests for swap routes
+- [ ] Add tests for swap-response logic (accept/reject, status updates, user ID swaps)
+- [ ] Mock MongoDB for test isolation
+- [ ] Run tests locally and ensure they pass
+
+## Real-time Notifications (WebSockets)
+- [ ] Install Socket.io in backend/package.json and frontend/package.json
+- [ ] Update backend/server.js to integrate Socket.io server
+- [ ] Modify backend/routes/swaps.js to emit events on swap request creation and response
+- [ ] Update frontend/src/components/Requests.js to listen for WebSocket events and update UI in real-time
+- [ ] Test WebSocket notifications by simulating requests
+
+## Deployment
+- [ ] Configure vercel.json for frontend deployment on Vercel
+- [ ] Add Procfile for backend deployment on Heroku
+- [ ] Update package.json scripts for production builds
+- [ ] Deploy frontend to Vercel and backend to Render/Heroku
+- [ ] Test deployed application
+
+## Containerization
+- [ ] Create Dockerfile for backend (Node.js app)
+- [ ] Create docker-compose.yml for full stack (backend, MongoDB, frontend build)
+- [ ] Test local setup with Docker
+
+## Documentation
+- [ ] Update README.md with setup, deployment, and usage instructions
+- [ ] Document API endpoints, WebSocket events, and testing procedures

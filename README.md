@@ -1,6 +1,6 @@
 # SlotSwapper
 
-A full-stack web application for swapping time slots between users. Built with React, Node.js, Express, and MongoDB. Deployed on Vercel.
+A full-stack web application for swapping time slots between users. Built with React, Node.js, Express, MongoDB, and Socket.io for real-time notifications.
 
 ## Features
 
