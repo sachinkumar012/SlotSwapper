@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TODO for SlotSwapper Features Implementation
 
 ## Unit/Integration Tests
@@ -29,3 +30,6 @@
 ## Documentation
 - [ ] Update README.md with setup, deployment, and usage instructions
 - [ ] Document API endpoints, WebSocket events, and testing procedures
+=======
+ 
+>>>>>>> f0e65af9e4edca34a8cb791af8f319c24d2e1079
