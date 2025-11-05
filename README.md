@@ -122,6 +122,5 @@ A full-stack web application for swapping time slots between users. Built with R
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+ 
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
