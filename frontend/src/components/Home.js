@@ -138,7 +138,7 @@ const Home = () => {
             SlotSwapper.
           </p>
           <button className="cta-button secondary" onClick={handleGetStarted}>
-            {user ? "View Dashboard" : "Sign Up Now"}
+            Sign Up Now
           </button>
         </div>
       </section>
